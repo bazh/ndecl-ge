@@ -1,0 +1,100 @@
+<section class="container sm-l sm-6 md-6 lg-6 index" data-ng-controller="IndexCtrl as vm">
+    <div class="pad" data-ng-if="::vm.notReady">
+        <div class="invoice-spacer"></div>
+        <div>Для начала работы нужно заполнить секцию <a ui-sref="app.settings">[Настройки]</a> и добавить</div>
+        <div>ключи доступа к кабинету банка и налоговой</div>
+    </div>
+    <div class="pad" data-ng-if="::!vm.notReady">
+        <div class="ndoc-form">
+            <div class="form-section">Шаг 1. Загрузка транзакций из кабинета банка</div>
+            <div class="nav-submenu">
+                <a href="" data-ng-click="vm.loadTransactions()">[Старт]</a>
+                <span>{{vm.getBankName()}}. Счета: {{vm.settings.accounts.join(', ')}}</span>
+            </div>
+            <div class="invoice-spacer"></div>
+            <pulse-spinner data-ng-if="vm.transactionsLoading"></pulse-spinner>
+            <div data-ng-if="!vm.transactionsLoading">
+                <div class="no-data" data-ng-if="!vm.transactions.length && vm.transactionsRequested">Входящих транзакций в прошлом месяце не было</div>
+                <table class="ndoc-invoice-table" data-ng-if="vm.transactions.length">
+                    <thead>
+                        <th>Дата</th>
+                        <th>Отправитель</th>
+                        <th>Сумма</th>
+                        <th>Курс лари</th>
+                        <th>Налог</th>
+                    </thead>
+                    <tbody>
+                        <tr data-ng-repeat="item in vm.transactions | orderBy:'timestamp'">
+                            <td data-ng-bind="vm.getDate(item.date)"></td>
+                            <td data-ng-bind="item.sender"></td>
+                            <td>{{vm.getCurSymb(item.currency)}}{{item.amount}} / {{item.amountGel}} GEL</td>
+                            <td>
+                                <span data-ng-if="item.rateLoading">загружаю...</span>
+                                <span data-ng-if="item.rate && !item.rateLoading">{{item.rate}} GEL</span>
+                            </td>
+                            <td>
+                                <span data-ng-if="item.rateLoading">загружаю...</span>
+                                <span data-ng-if="item.rate && !item.rateLoading"> {{vm.getCurSymb(item.currency)}}{{vm.calcTax(item)}} / {{vm.calcTax(item, true)}} GEL</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="invoice-spacer"></div>
+                <div data-ng-if="vm.calcSumTax(vm.transactionsYear, true) > 0" class="allow-select">
+                </div>
+            </div>
+        </div>
+        <div class="ndoc-form" data-ng-if="vm.transactions.length && vm.calcSumTax(vm.transactionsYear, true) > 0">
+            <div class="form-section">Шаг 2. Создание декларации. Пользователь: {{vm.settings.rsLogin}}</div>
+            <!-- <div class="nav-submenu">
+                <a href="" data-ng-click="vm.createDeclaration()">[Старт]</a>
+                <span>Ожидаемый налог за прошлый месяц: {{vm.calcSumTax(vm.transactions, true)}} GEL</span>
+                <span>(Сайт налоговой, Пользователь: {{vm.settings.rsLogin}})</span>
+            </div> -->
+            <div class="allow-select">Доход с начала года: {{vm.accumulatedIncome}} GEL</div>
+            <div class="allow-select">Налог за прошлый месяц: {{vm.monthTax}} GEL</div>
+            <pulse-spinner data-ng-if="vm.declarationLoading"></pulse-spinner>
+            <div data-ng-if="!vm.declarationLoading">
+                <br>
+                <a href="" data-ng-click="vm.getDeclarations()">[Проверить и заполнить декларацию]</a>
+            </div>
+            <div data-ng-if="vm.declarations.length">
+                <table class="ndoc-invoice-table" data-ng-if="vm.transactions.length">
+                    <thead>
+                        <th>Дата</th>
+                        <th>Период</th>
+                        <th>Сумма</th>
+                    </thead>
+                    <tbody>
+                        <tr data-ng-repeat="item in vm.declarations">
+                            <td data-ng-bind="item.date"></td>
+                            <td data-ng-bind="item.period"></td>
+                            <td data-ng-bind="item.amount"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="ndoc-form" data-ng-if="vm.monthTax > 0 && vm.settings.payAccount">
+            <div class="form-section">Шаг 3. Оплата налога</div>
+            <div>
+                <span>Платеж в этом месяце: {{vm.monthTax}}</span>
+                <!-- <a href="" data-ng-click="vm.overrideVal('monthTax')"></a> -->
+                <span>GEL</span>
+            </div>
+            <div>
+                <span>Treasure code:</span>
+                <span class="allow-select">101001000</span>
+            </div>
+            <div>
+                <span>Комментарий:</span>
+                <span class="allow-select">{{vm.getPayTaxMessage()}}</span>
+            </div>
+            <div>
+                <br>
+                <a href="" data-ng-click="vm.payTax(vm.monthTax)">[Оплатить налог]</a>
+            </div>
+            <pulse-spinner data-ng-if="vm.payTaxLoading"></pulse-spinner>
+        </div>
+    </div>
+</section>

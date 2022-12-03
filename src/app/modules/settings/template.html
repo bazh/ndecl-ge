@@ -1,0 +1,63 @@
+<section class="container sm-l sm-6 md-6 lg-6 settings" data-ng-controller="SettingsCtrl as vm">
+    <div class="pad">
+        <ndoc-section-title data-title="Настройки"></ndoc-section-title>
+        <div class="menu-spacer"></div>
+        <form class="ndoc-form" name="vm.settingsForm" data-ng-submit="vm.onSubmit()">
+            <div class="form-section">Общие настройки</div>
+            <div class="form-group">
+                <label class="control-label">Номер ИП</label>
+                <input type="text" data-ng-model="vm.settings.tin" placeholder="12345678" required>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Налоговая база (%)</label>
+                <input type="number" step="1" data-ng-model="vm.settings.taxBase" placeholder="1" required>
+            </div>
+
+            <div class="form-section">Счета и ключи доступа к банку</div>
+
+
+            <div class="form-group">
+                <label class="control-label">Банк</label>
+                <select ng-model="vm.settings.bankId" style="width:10%" required>
+                    <option data-ng-repeat="c in vm.banks" data-ng-value="c.id" data-ng-bind="c.val"></option>
+                </select>
+            </div>
+            <div data-ng-if="vm.settings.bankId === 'bog'">
+                <div class="form-group">
+                    <label class="control-label">Application ID / Secret key</label>
+                    <input type="text" style="width:24%" data-ng-model="vm.settings.bankLogin" required>
+                    <input type="password" style="width:25%" data-ng-model="vm.settings.bankPassword" required>
+                </div>
+            </div>
+            <div data-ng-if="vm.settings.bankId">
+                <div class="form-group">
+                    <label class="control-label">Номер счета (Можно указать несколько через запятую)</label>
+                    <input type="text" data-ng-model="vm.accounts" required>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Номер счета, с которого оплачиваются налоги (GEL)</label>
+                    <input type="text" data-ng-model="vm.settings.payAccount">
+                </div>
+            </div>
+
+            <div class="form-section">Кабинет налоговой</div>
+
+            <div class="form-group">
+                <label class="control-label">Логин</label>
+                <input type="text" data-ng-model="vm.settings.rsLogin">
+            </div>
+            <div class="form-group">
+                <label class="control-label">Пароль</label>
+                <input type="password" data-ng-model="vm.settings.rsPassword">
+            </div>
+            <div class="button-group">
+                <div class="left">
+                    <button type="submit" data-ng-disabled="vm.settingsForm.$invalid">Сохранить</button>
+                </div>
+                <div class="right">
+                    <button type="button" data-ng-click="vm.clearSettings()">Удалить все настройки!</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
