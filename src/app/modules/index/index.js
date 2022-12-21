@@ -169,11 +169,16 @@
                     period
                 ).then((res) => {
                     if (!res.length) {
-                        return Electron
+                        if (!vm.awaitDeclaration)
+                        Electron
                             .call('ndoc.OpenDeclarations')
+
+                        vm.awaitDeclaration = true;
+                        return setTimeout(getDeclarations, 1000);
                     }
 
-                    vm.declarations = res;
+                    vm.awaitDeclaration = false;
+                    vm.declaration = res[0];
                 })
                 .catch(Alert.error)
                 .finally(() => vm.declarationLoading = false);

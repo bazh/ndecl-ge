@@ -46,39 +46,27 @@
         </div>
         <div class="ndoc-form" data-ng-if="vm.transactions.length && vm.calcSumTax(vm.transactionsYear, true) > 0">
             <div class="form-section">Шаг 2. Создание декларации. Пользователь: {{vm.settings.rsLogin}}</div>
-            <!-- <div class="nav-submenu">
-                <a href="" data-ng-click="vm.createDeclaration()">[Старт]</a>
-                <span>Ожидаемый налог за прошлый месяц: {{vm.calcSumTax(vm.transactions, true)}} GEL</span>
-                <span>(Сайт налоговой, Пользователь: {{vm.settings.rsLogin}})</span>
-            </div> -->
-            <div class="allow-select">Доход с начала года: {{vm.accumulatedIncome}} GEL</div>
-            <div class="allow-select">Налог за прошлый месяц: {{vm.monthTax}} GEL</div>
-            <pulse-spinner data-ng-if="vm.declarationLoading"></pulse-spinner>
-            <div data-ng-if="!vm.declarationLoading">
+            <div data-ng-if="!vm.declaration">
+                <div class="allow-select">Доход с начала года: {{vm.accumulatedIncome}} GEL</div>
+                <div class="allow-select">Ожидаемый налог за прошлый месяц: {{vm.monthTax}} GEL</div>
                 <br>
-                <a href="" data-ng-click="vm.getDeclarations()">[Проверить и заполнить декларацию]</a>
+                <a href="" data-ng-if="!vm.awaitDeclaration" data-ng-click="vm.getDeclarations()">[Проверить и заполнить декларацию]</a>
+                <div data-ng-if="vm.awaitDeclaration">Ожидаем заполнение декларации...</div>
             </div>
-            <div data-ng-if="vm.declarations.length">
-                <table class="ndoc-invoice-table" data-ng-if="vm.transactions.length">
-                    <thead>
-                        <th>Дата</th>
-                        <th>Период</th>
-                        <th>Сумма</th>
-                    </thead>
-                    <tbody>
-                        <tr data-ng-repeat="item in vm.declarations">
-                            <td data-ng-bind="item.date"></td>
-                            <td data-ng-bind="item.period"></td>
-                            <td data-ng-bind="item.amount"></td>
-                        </tr>
-                    </tbody>
-                </table>
+            <pulse-spinner data-ng-if="vm.declarationLoading"></pulse-spinner>
+            <div data-ng-if="vm.declaration">
+                <br>
+                <div>Обнаружена заполненная за прошлый месяц декларация:</div>
+                <div class="allow-select">Подана: {{vm.declaration.date}}</div>
+                <div class="allow-select">Период: {{vm.declaration.period}}</div>
+                <div class="allow-select">Налог: {{vm.declaration.amount}}</div>
             </div>
         </div>
-        <div class="ndoc-form" data-ng-if="vm.monthTax > 0 && vm.settings.payAccount">
+        <div class="ndoc-form" data-ng-if="vm.settings.payAccount && vm.declaration">
             <div class="form-section">Шаг 3. Оплата налога</div>
             <div>
-                <span>Платеж в этом месяце: {{vm.monthTax}}</span>
+                <span>Платеж в этом месяце:</span>
+                <span class="allow-select">{{vm.declaration.amount}}</span>
                 <!-- <a href="" data-ng-click="vm.overrideVal('monthTax')"></a> -->
                 <span>GEL</span>
             </div>
@@ -92,7 +80,7 @@
             </div>
             <div>
                 <br>
-                <a href="" data-ng-click="vm.payTax(vm.monthTax)">[Оплатить налог]</a>
+                <a href="" data-ng-click="vm.payTax(vm.declaration.amount)">[Оплатить налог]</a>
             </div>
             <pulse-spinner data-ng-if="vm.payTaxLoading"></pulse-spinner>
         </div>
