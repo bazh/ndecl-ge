@@ -151,9 +151,8 @@
                         return item.date >= gte && item.date <= lte
                     });
 
-
                     vm.accumulatedIncome = calcSum(vm.transactionsYear, true);
-                    vm.monthTax = calcSumTax(vm.transactionsYear, true);
+                    vm.monthTax = calcSumTax(vm.transactions, true);
                 })
                 .finally(() => vm.transactionsLoading = false)
         }
