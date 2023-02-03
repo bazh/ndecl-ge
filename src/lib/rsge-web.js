@@ -184,6 +184,9 @@ class RSGE {
                     period: item.SAG_PERIODI,
                     amount: item.DAR
                 };
+            })
+            .filter((item) => {
+                return item.id && item.status;
             });
     }
 

@@ -168,9 +168,10 @@
                     period
                 ).then((res) => {
                     if (!res.length) {
-                        if (!vm.awaitDeclaration)
-                        Electron
-                            .call('ndoc.OpenDeclarations')
+                        if (!vm.awaitDeclaration) {
+                            Electron
+                                .call('ndoc.OpenDeclarations')
+                        }
 
                         vm.awaitDeclaration = true;
                         return setTimeout(getDeclarations, 1000);
