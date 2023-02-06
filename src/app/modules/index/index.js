@@ -152,6 +152,7 @@
                     });
 
                     vm.accumulatedIncome = calcSum(vm.transactionsYear, true);
+                    vm.monthIncome = calcSum(vm.transactions, true);
                     vm.monthTax = calcSumTax(vm.transactions, true);
                 })
                 .finally(() => vm.transactionsLoading = false)

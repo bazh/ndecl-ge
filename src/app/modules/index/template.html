@@ -46,17 +46,19 @@
         </div>
         <div class="ndoc-form" data-ng-if="vm.transactions.length && vm.calcSumTax(vm.transactionsYear, true) > 0">
             <div class="form-section">Шаг 2. Создание декларации. Пользователь: {{vm.settings.rsLogin}}</div>
-            <div data-ng-if="!vm.declaration">
                 <div class="allow-select">Доход с начала года: {{vm.accumulatedIncome}} GEL</div>
+                <div class="allow-select">Доход за прошлый месяц: {{vm.monthIncome}} GEL</div>
                 <div class="allow-select">Ожидаемый налог за прошлый месяц: {{vm.monthTax}} GEL</div>
                 <br>
+            <div data-ng-if="!vm.declaration">
                 <a href="" data-ng-if="!vm.awaitDeclaration" data-ng-click="vm.getDeclarations()">[Проверить и заполнить декларацию]</a>
                 <div data-ng-if="vm.awaitDeclaration">Ожидаем заполнение декларации...</div>
             </div>
             <pulse-spinner data-ng-if="vm.declarationLoading"></pulse-spinner>
             <div data-ng-if="vm.declaration">
-                <br>
-                <div>Обнаружена заполненная за прошлый месяц декларация:</div>
+                <div>
+                    <b>Обнаружена заполненная за прошлый месяц декларация:</b>
+                </div>
                 <div class="allow-select">Подана: {{vm.declaration.date}}</div>
                 <div class="allow-select">Период: {{vm.declaration.period}}</div>
                 <div class="allow-select">Налог: {{vm.declaration.amount}}</div>
