@@ -66,6 +66,11 @@
         </div>
         <div class="ndoc-form" data-ng-if="vm.settings.payAccount && vm.declaration">
             <div class="form-section">Шаг 3. Оплата налога</div>
+            <div data-ng-if="vm.balance < vm.declaration.amount">
+                <span>Баланс на счете: {{vm.balance}} GEL</span>
+                <b>(Не хватает денег, пополните баланс!)</b>
+                <div class="invoice-spacer"></div>
+            </div>
             <div>
                 <span>Платеж в этом месяце:</span>
                 <span class="allow-select">{{vm.declaration.amount}}</span>
@@ -80,8 +85,8 @@
                 <span>Комментарий:</span>
                 <span class="allow-select">{{vm.getPayTaxMessage()}}</span>
             </div>
+            <div class="invoice-spacer"></div>
             <div>
-                <br>
                 <a href="" data-ng-click="vm.payTax(vm.declaration.amount)">[Оплатить налог]</a>
             </div>
             <pulse-spinner data-ng-if="vm.payTaxLoading"></pulse-spinner>

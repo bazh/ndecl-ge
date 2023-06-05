@@ -42,6 +42,16 @@ ipcMain.handle('ndoc.PayTax', async (ev, val, msg) => {
     throw new Error(`Unknown bankId ${bankId}`);
 });
 
+ipcMain.handle('ndoc.GetBalance', async (msg) => {
+    const settings = store.get('settings');
+    switch (settings.bankId) {
+        case 'bog':
+            return await bog.getBalance(settings.payAccount);
+    }
+
+    throw new Error(`Unknown bankId ${bankId}`);
+});
+
 ipcMain.handle('ndoc.GetDeclarations', async (ev, period) => {
     const data = await rsge.getDeclarations(period);
 

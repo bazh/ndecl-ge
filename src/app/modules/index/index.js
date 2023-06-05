@@ -155,6 +155,13 @@
                     vm.monthIncome = calcSum(vm.transactions, true);
                     vm.monthTax = calcSumTax(vm.transactions, true);
                 })
+                .then(() => {
+                    return Electron.call('ndoc.GetBalance')
+                        .then((val) => {
+                            vm.balance = val;
+                        })
+                })
+                .catch(Alert.error)
                 .finally(() => vm.transactionsLoading = false)
         }
 
@@ -194,7 +201,7 @@
             Electron
                 .call('ndoc.PayTax', val, getPayTaxMessage())
                 .then((res) => {
-                    console.log(res);
+                    Alert.info(`Платежка создана (${res}). Теперь ее нужно подписать в интернет-банке`)
                 })
                 .catch(Alert.error)
                 .finally(() => vm.payTaxLoading = false);

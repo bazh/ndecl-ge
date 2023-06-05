@@ -15,6 +15,11 @@ const CURRENCIES = [
     'rub'
 ];
 
+// Unified treasury code - budget tax
+const TREASURY_BENEFICIARY_NAME = 'ერთიანი სახაზინო კოდი - საბიუჯეტო გადასახადი';
+const TREASURY_BANK_CODE = 'TRESGE22';
+const TREASURY_TAX_CODE = '101001000';
+
 class BOG {
     constructor(key, secret) {
         this.key = key;
@@ -51,42 +56,60 @@ class BOG {
     }
 
     async payTax(tin, acct, val, comment) {
-        const res = await this.__request('POST', `documents/domestic`, {
+        if (!comment) {
+            throw new Error('Comment is required');
+        }
+
+        const data = this.parseAccount(acct)
+
+        const req = [{
+            Amount: val,
             Nomination: comment,
-            PayerInn: tin,
             ValueDate: (new Date()).toISOString(),
+            SourceAccountNumber: data.account,
+
+            PayerInn: '',
+
             UniqueId: uuid.v4(),
-            Amount: 1,
-            // Amount: val,
             DocumentNo: moment().format('YYMMDDhhmm'),
-            SourceAccountNumber: acct,
-            BeneficiaryAccountNumber: '101001000', // TODO: check
-            BeneficiaryInn: '123'
 
-        });
+            DispatchType: "BULK",
 
-        console.log(res);
+            BeneficiaryAccountNumber: TREASURY_TAX_CODE,
+            BeneficiaryBankCode: TREASURY_BANK_CODE,
+            BeneficiaryName: TREASURY_BENEFICIARY_NAME,
+            BeneficiaryInn: ''
+        }];
 
-        return res;
+
+        const res = await this.__request('POST', `documents/domestic`, JSON.stringify(req));
+
+        if (!Array.isArray(res) || res.length !== 1) {
+            throw new Error(`Something went wrong (create payment action, invalid response): ${JSON.stringify(res)}`);
+        }
+
+        if (res[0].ResultCode !== 0) {
+            throw new Error(`Something went wrong (create payment action, ResultCode): ${JSON.stringify(res)}`);
+        }
+
+        const docKey = res[0].UniqueKey;
+        if (!docKey) {
+            throw new Error(`Something went wrong (create payment action, UniqueKey): ${JSON.stringify(res)}`);
+        }
+
+        return docKey;
+    }
+
+    async getBalance(acc) {
+        const data = this.parseAccount(acc)
+        const res = await this.__request('GET', `accounts/${data.account}/${data.currency}`);
+
+        return res.AvailableBalance;
     }
 
     async getStatement(acc, gte, lte) {
-        if (!acc) {
-            throw new Error('Account number is required');
-        }
-
-        if (acc.length <= 3) {
-            throw new Error('Invalid account number');
-        }
-
-        const cur = acc.slice(-3);
-        const acct = acc.slice(0, -3);
-
-        if (CURRENCIES.indexOf(cur.toLowerCase()) === -1) {
-            throw new Error(`Unknwon currency ${cur}`);
-        }
-
-        const res = await this.__request('GET', `statement/${acct}/${cur}/${gte}/${lte}`);
+        const data = this.parseAccount(acc)
+        const res = await this.__request('GET', `statement/${data.account}/${data.currency}/${gte}/${lte}`);
 
         if (res.Count === 0 ) {
             return [];
@@ -94,10 +117,9 @@ class BOG {
 
         let items = res.Records.map(formatStatementItem);
 
-
         if (res.Count > PAGE_SIZE) {
             const __getStatementPage = async function(id, page) {
-                const res = await this.__request('GET', `statement/${acct}/${cur}/${id}/${page}`);
+                const res = await this.__request('GET', `statement/${data.account}/${data.currency}/${id}/${page}`);
                 return res.map(formatStatementItem);
             }
 
@@ -126,6 +148,28 @@ class BOG {
         if (this.__timer) {
             clearTimeout(this.__timer);
         }
+    }
+
+    parseAccount(acc) {
+        if (!acc) {
+            throw new Error('Account number is required');
+        }
+
+        if (acc.length <= 3) {
+            throw new Error('Invalid account number');
+        }
+
+        const cur = acc.slice(-3);
+        const acct = acc.slice(0, -3);
+
+        if (CURRENCIES.indexOf(cur.toLowerCase(cur)) === -1) {
+            throw new Error(`Invalid currency: ${cur}`);
+        }
+
+        return {
+            account: acct,
+            currency: cur
+        };
     }
 
     __resetToken() {
