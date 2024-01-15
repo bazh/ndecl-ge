@@ -49,10 +49,6 @@ class RSGE {
             }
         })
         .then((data) => {
-            console.log({
-                PIN: data.pin,
-                PIN_TOKEN: data.token,
-            })
             return fetch(`${API_URL}/Users/AuthenticatePin`, {
                 method: 'POST',
                 headers: {

@@ -2,6 +2,8 @@ const fetch = require('node-fetch');
 const moment = require('moment');
 const uuid = require('uuid');
 
+const bus = require('./bus');
+
 
 const API_URL = 'https://api.businessonline.ge/api';
 const AUTH_URL = 'https://account.bog.ge/auth/realms/bog/protocol/openid-connect/token';
@@ -97,7 +99,32 @@ class BOG {
             throw new Error(`Something went wrong (create payment action, UniqueKey): ${JSON.stringify(res)}`);
         }
 
+        await this.signDoc(docKey);
+
         return docKey;
+    }
+
+    async requestOtp(docKey) {
+        const res = await this.__request('POST', `otp/request`, {
+            ObjectKey: docKey,
+            ObjectType: 0
+        });
+
+        const pin = await bus.Prompt('Код из СМС');
+        if (!pin) {
+            throw new Error('pin is required');
+        }
+
+        return pin;
+    }
+
+    async signDoc(docKey) {
+        const pin = await this.requestOtp(docKey);
+
+        const res = await this.__request('POST', `sign/document`, {
+            ObjectKey: docKey,
+            Otp: pin
+        });
     }
 
     async getBalance(acc) {
@@ -209,6 +236,5 @@ function formatStatementItem(item) {
     }
 
 }
-
 
 module.exports = BOG;

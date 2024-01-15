@@ -201,7 +201,7 @@
             Electron
                 .call('ndoc.PayTax', val, getPayTaxMessage())
                 .then((res) => {
-                    Alert.info(`Платежка создана (${res}). Теперь ее нужно подписать в интернет-банке`)
+                    Alert.info(`Платежка отправлена`)
                 })
                 .catch(Alert.error)
                 .finally(() => vm.payTaxLoading = false);

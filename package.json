@@ -6,7 +6,7 @@
   "main": "src/index.js",
   "scripts": {
     "css": "yarn scss",
-    "scss": "./node_modules/node-sass/bin/node-sass --recursive ./src/app/scss --output ./src/app/css",
+    "scss": "node ./node_modules/sass/sass ./src/app/scss:./src/app/css --no-source-map",
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
@@ -59,6 +59,7 @@
     "node-fetch": "^2.0.0",
     "puppeteer": "^19.3.0",
     "puppeteer-core": "^19.3.0",
+    "sass": "^1.69.7",
     "smalltalk": "^4.1.1",
     "uuid": "^8.3.2"
   },
@@ -68,7 +69,6 @@
     "@electron-forge/maker-rpm": "^6.0.0-beta.54",
     "@electron-forge/maker-squirrel": "^6.0.0-beta.54",
     "@electron-forge/maker-zip": "^6.0.0-beta.54",
-    "electron": "13.1.2",
-    "node-sass": "^6.0.0"
+    "electron": "13.1.2"
   }
 }
